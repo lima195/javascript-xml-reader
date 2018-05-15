@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>XML Reader</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="app/css/main.css" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script lang="javascript" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.12.4/xlsx.core.min.js"></script>
+</head>
+<body>
+
+  <div class="container"> 
+
+    <table id="tabela">
+        <thead id="tabela-head">
+          <tr>
+
+          </tr>
+        </thead>
+
+        <tbody id="tabela-body">
+
+        </tbody>
+    </table>
+
+    <script>
+      /* set up XMLHttpRequest */
+
+      // replace it with your file path in local server
+      var xml_dir = "xmls/";
+      var xml_file = "Teste.xlsx"
+      xml_file = xml_dir + xml_file;
+
+      var url = xml_file;
+      var table_head = [];
+
+      var oReq = new XMLHttpRequest();
+      oReq.open("GET", url, true);
+      oReq.responseType = "arraybuffer";
+
+      oReq.onload = function(e) {
+          var arraybuffer = oReq.response;
+
+          /* convert data to binary string */
+          var data = new Uint8Array(arraybuffer);
+
+          var arr = new Array();
+          for (var i = 0; i != data.length; ++i) {
+              arr[i] = String.fromCharCode(data[i]);
+          }
+
+          var bstr = arr.join("");
+
+          var cfb = XLSX.read(bstr, { type: 'binary' });
+
+          cfb.SheetNames.forEach(function(sheetName, index) {
+
+              // Obtain The Current Row As CSV
+              var fieldsObjs = XLS.utils.sheet_to_json(cfb.Sheets[sheetName]);
+
+              fieldsObjs.map(function(field) {
+                if(table_head.length == 0){
+                  table_head = Object.keys(field);
+
+                  var i;
+                  for (i = 0; i < table_head.length; ++i) {
+                    $("#tabela-head > tr").append('<td>' + table_head[i] + '</td>');
+                  }
+                }
+                $("#Exemplo").append(field['Alcance'] + '<br>');
+              });
+
+          });
+      }
+
+      oReq.send();
+    </script>
+    
+  </div>
+  <script src="app/js/jquery-3.3.1.min.js"></script>
+  <script src="app/js/vue.js"></script>
+  <script src="app/js/materialize/bin/materialize.min.js"></script>
+  <script src="app/js/app.js"></script>
+</body>
+</html>
